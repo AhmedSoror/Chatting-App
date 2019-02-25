@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
+
 public class ServerModel{
 	
 	
@@ -59,8 +60,16 @@ public class ServerModel{
 		Scanner sc=new Scanner(System.in);
 		System.out.println("please eneter a port number:");
 		int port=sc.nextInt();
-		ServerModel server=new ServerModel(port);
-		server.run();
+		while(true) {
+			try {
+				ServerModel server=new ServerModel(port);
+				server.run();
+			}
+			catch(Exception e) {
+				System.out.println("Please enter another port");
+				port=sc.nextInt();
+			}
+		}
 	}
 
 
@@ -101,17 +110,32 @@ public class ServerModel{
 			}
 			return name;
 		}
+		public void removeClient() {
+			clientsName.remove(clientName);
+			for(ThreadedServer cap:sockestList) {
+				if(cap.clientName.equals(clientName)) {
+					sockestList.remove(cap);
+					break;
+				}
+			}
+		}
+		public boolean clientExit(String msg) {
+			System.out.println("msg is : "+msg);
+			if(msg.equalsIgnoreCase("bye")||msg.equalsIgnoreCase("quit")) {
+				removeClient();
+				System.out.println("remove");
+				return true;
+			}
+			return false;
+		}
+	
 		public void run() {
 			try {
 				while(true) {
 					String msgIn=readFromClient();
-					System.out.println(msgIn);	
-					if(msgIn.equalsIgnoreCase("bye")||msgIn.equalsIgnoreCase("quit")) {
-						break;
-					}
 					if(firstConnection) {
-						clientName=msgIn;
 						if(clientsName.add(msgIn)) {
+							clientName=msgIn;
 							sockestList.add(this);
 							firstConnection=false;
 							sendToClient("true,"+clientName);
@@ -121,6 +145,12 @@ public class ServerModel{
 						}
 					}
 					else {
+						
+						if(clientExit(msgIn)) {
+//							display2.setText(display2.getText()+"\n\t\t "+clientName+" closed connection");
+							System.out.println("Connection with " + clientName + " closed");
+							break;
+						}
 						if(msgIn.equalsIgnoreCase("GetMemberList")||(msgIn.toUpperCase().contains("MEMBER")&&msgIn.toUpperCase().contains("LIST"))) {
 							sendToClient(getMemberList());
 						}
@@ -143,7 +173,7 @@ public class ServerModel{
 					
 				}
 			} catch (Exception e) {
-//				System.out.println(clientNumber+" Closed the connection");
+//				e.printStackTrace();
 			} finally {
 				try {
 					socket.close();
