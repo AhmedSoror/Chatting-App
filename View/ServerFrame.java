@@ -19,11 +19,8 @@ import javax.swing.JComboBox;
 public class ServerFrame extends JFrame {
 
 	private JPanel contentPane;
-	public JTextField txt_serverB;
-	public JTextField txt_port;
-	
-	public JButton btn_joinServer; 
-	public JButton btn_port;
+	private JTextField txt_msg;
+	private JTextField textField_1;
 
 	/**
 	 * Launch the application.
@@ -33,6 +30,7 @@ public class ServerFrame extends JFrame {
 			public void run() {
 				try {
 					ServerFrame frame = new ServerFrame();
+					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -45,53 +43,70 @@ public class ServerFrame extends JFrame {
 	 */
 	public ServerFrame() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 264, 307);
+		setBounds(100, 100, 582, 527);
 		contentPane = new JPanel();
-		setVisible(true);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		
-		txt_serverB = new JTextField();
-		txt_serverB.setColumns(10);
+		txt_msg = new JTextField();
+		txt_msg.setColumns(10);
 		
-		btn_joinServer = new JButton("Join server");
-		btn_joinServer.setEnabled(false);
+		JButton btn_send = new JButton("Join");
 		
-		txt_port = new JTextField();
-		txt_port.setColumns(10);
+		JScrollPane scrollPane = new JScrollPane();
 		
-		 btn_port = new JButton("Start Server");
+		textField_1 = new JTextField();
+		textField_1.setColumns(10);
+		
+		JButton btn_port = new JButton("Port");
+		
+		JList list_members = new JList();
+		
+		JButton btn_getMembers = new JButton("Get members");
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
-			gl_contentPane.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_contentPane.createSequentialGroup()
-					.addGap(62)
-					.addComponent(btn_joinServer, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-					.addGap(79))
-				.addGroup(Alignment.TRAILING, gl_contentPane.createSequentialGroup()
-					.addGap(21)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
-						.addComponent(txt_serverB, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)
-						.addComponent(txt_port, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE))
-					.addGap(23))
-				.addGroup(gl_contentPane.createSequentialGroup()
-					.addGap(61)
-					.addComponent(btn_port, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-					.addGap(72))
+			gl_contentPane.createParallelGroup(Alignment.TRAILING)
+				.addGroup(Alignment.LEADING, gl_contentPane.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_contentPane.createSequentialGroup()
+							.addComponent(textField_1, GroupLayout.PREFERRED_SIZE, 124, GroupLayout.PREFERRED_SIZE)
+							.addGap(18)
+							.addComponent(btn_port))
+						.addGroup(Alignment.TRAILING, gl_contentPane.createSequentialGroup()
+							.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
+								.addComponent(scrollPane, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
+								.addComponent(txt_msg, GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE))
+							.addGap(18)
+							.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+								.addComponent(list_members, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(btn_getMembers, GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE)
+								.addComponent(btn_send, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE))))
+					.addContainerGap())
 		);
 		gl_contentPane.setVerticalGroup(
-			gl_contentPane.createParallelGroup(Alignment.LEADING)
+			gl_contentPane.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_contentPane.createSequentialGroup()
-					.addGap(21)
-					.addComponent(txt_port)
+					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
+						.addComponent(textField_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btn_port))
 					.addGap(18)
-					.addComponent(btn_port, GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
-					.addGap(38)
-					.addComponent(txt_serverB, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
+						.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 371, Short.MAX_VALUE)
+						.addGroup(Alignment.LEADING, gl_contentPane.createSequentialGroup()
+							.addComponent(list_members, GroupLayout.PREFERRED_SIZE, 181, GroupLayout.PREFERRED_SIZE)
+							.addGap(18)
+							.addComponent(btn_getMembers)))
 					.addGap(18)
-					.addComponent(btn_joinServer, GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
-					.addGap(61))
+					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
+						.addComponent(txt_msg, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btn_send))
+					.addContainerGap())
 		);
+		
+		JTextArea txt_display = new JTextArea();
+		txt_display.setEditable(false);
+		scrollPane.setViewportView(txt_display);
 		contentPane.setLayout(gl_contentPane);
 	}
 }

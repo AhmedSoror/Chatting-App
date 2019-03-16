@@ -35,6 +35,7 @@ public class ClientModel {
 		outToServer.writeBytes(msg+ '\n');
 	}
 	public String readMessage() throws IOException {
+//		System.out.println("modelllllll");
 		return (inFromServer.readLine());
 	}
 	

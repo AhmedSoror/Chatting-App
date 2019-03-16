@@ -10,19 +10,44 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.StringTokenizer;
 
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 
 import Model.ClientModel;
-import Model.ServerModel;
+import Model.ServerModel3000;
 import View.ClientFrame;
 
 public class Client {
 	static ClientModel model;
+	static String clientName;
+	static boolean firstName = true;
 	static boolean connected=false;
-	static String[] members;
+	
+	
+	public static String[] removeServers(String[] arr) {
+		LinkedList<String> list=new LinkedList<>();
+		for(int i=0;i<arr.length;i++) {
+			if(arr[i].contains("$$"))
+				continue;
+			list.add(arr[i]);
+		}
+		return list.toArray(new String[list.size()]);
+		
+	}
+	public static String removeReciever(String msg) { // msg= ~reciever~!sender!body
+		int i=0;
+		for(i=1;i<msg.length();i++) {
+			if(msg.charAt(i)=='~')
+				break;
+		}
+		i++;
+		String s=msg.substring(i+1);
+		s.replace("!", ":");
+		return s;
+	}
 	public static void main(String[] args) throws UnknownHostException, IOException {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -44,25 +69,44 @@ public class Client {
 										while(true) {
 											try {
 												String msg=model.readMessage();
+												if(msg==null||msg.length()==0)
+													continue;
 												StringTokenizer st=new StringTokenizer(msg,",");
 												if(!connected&&st.nextToken().equalsIgnoreCase("true")) {
 													connected=true;
 													String name=st.nextToken();
-													msg="connected to server on port "+port;
+													msg="connected to server on port "+port+"0";
 													frame.btn_send.setText("Send");
+													clientName=name;
+													firstName=false;
 													frame.setTitle(name);
 												}
-												if(msg.charAt(0)=='['&&msg.charAt(msg.length()-1)==']') {
-													String names=msg.substring(1,msg.length()-1);
-													members=names.split(",");
-													System.out.println(Arrays.toString(members));
-													frame.list_members=new JList(members);
+												if (msg.charAt(0) == '[' && msg.charAt(msg.length() - 1) == ']') {
+													msg = msg.substring(1, msg.length() - 1);
+													String[] member_server = msg.split(",");
+													String[] members = removeServers(member_server);
 													frame.list_members.setListData(members);
+//														System.out.println(Arrays.toString(members));
+
+												} else {
+//													if(connected) {
+//														frame.txt_display.setText(frame.txt_display.getText()+"\n"+msg.substring(0,msg.length()-1));	
+//													}
+//													else {
+														try {
+															System.out.println(clientName+" 98 "+msg);
+															String msgMod = removeReciever(msg);
+															System.out.println(clientName+" 100 "+msgMod);
+															frame.txt_display.setText(frame.txt_display.getText() + "\n"+ msgMod.substring(0, msgMod.length() - 1));
+														} catch (Exception e) {
+															frame.txt_display.setText(frame.txt_display.getText()+"\n"+msg.substring(0,msg.length()-1));	
+														}
+//													}
 												}
-												frame.txt_display.setText(frame.txt_display.getText()+"\n"+msg);
 												
-											} catch (IOException e) {
+											} catch (Exception e) {
 //												e.printStackTrace();
+//												System.out.println("client 101");
 											}
 										}
 									}
@@ -78,10 +122,20 @@ public class Client {
 					frame.btn_send.addActionListener(new ActionListener() {
 						@Override
 						public void actionPerformed(ActionEvent arg0) {
+							
 							String msg=frame.txt_msg.getText();
 							try {
-								model.sendMessage(msg);
-							} catch (IOException e) {
+								if(firstName) {
+									model.sendMessage(msg);
+//									firstName =false;
+								}
+								else {
+									String reciever=(String) frame.list_members.getSelectedValue();
+//									System.out.println(reciever);
+									msg="~"+reciever+"~"+"!"+clientName+"!"+msg;
+									model.sendMessage(msg+"2");
+								}
+							} catch (Exception e) {
 								// TODO Auto-generated catch block
 								JOptionPane.showMessageDialog(null,"Please connect to server first","Error",JOptionPane.WARNING_MESSAGE);
 							}
@@ -94,31 +148,28 @@ public class Client {
 							String msg="get member list";
 							try {
 								model.sendMessage(msg);
-							} catch (IOException e) {
+							} catch (Exception e) {
 								// TODO Auto-generated catch block
 								JOptionPane.showMessageDialog(null,"Please connect to server first","Error",JOptionPane.WARNING_MESSAGE);
 							}
 							
 						}
 					});
-					
-					 frame.addWindowListener(new WindowAdapter() {
+					frame.addWindowListener(new WindowAdapter() {
 						public void windowClosing(WindowEvent e) {
 							if(connected) {
-							try {
-								model.sendMessage("BYE"+"\n");
-								model.ClientSocket.close();
-							} 
-							catch (IOException ex) {
-								System.out.println("closing problem");
-							}
+								try {
+									model.sendMessage("BYE"+"\n");
+									model.close();
+								} 
+								catch (Exception ex) {
+									System.out.println("closing problem");
+								}
 							}
 							System.exit(0);
 							frame.dispose();
-							}
-						});
-		 
-					
+						}
+					});
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
