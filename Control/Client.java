@@ -25,7 +25,15 @@ public class Client {
 	static String clientName;
 	static boolean firstName = true;
 	static boolean connected=false;
-	
+	public static String removeBrackets(String msg) {
+		String s="";
+		for(int i=0;i<msg.length();i++) {
+			if(msg.charAt(i)=='['||msg.charAt(i)==']')
+				continue;
+			s+=msg.charAt(i)+"";
+		}
+		return s;
+	}
 	
 	public static String[] removeServers(String[] arr) {
 		LinkedList<String> list=new LinkedList<>();
@@ -82,11 +90,12 @@ public class Client {
 													frame.setTitle(name);
 												}
 												if (msg.charAt(0) == '[' && msg.charAt(msg.length() - 1) == ']') {
-													msg = msg.substring(1, msg.length() - 1);
+//													msg = msg.substring(1, msg.length() - 1);//*****************************
+													msg=removeBrackets(msg);
 													String[] member_server = msg.split(",");
+													System.out.println("Client 96: "+Arrays.toString(member_server));
 													String[] members = removeServers(member_server);
 													frame.list_members.setListData(members);
-//														System.out.println(Arrays.toString(members));
 
 												} else {
 //													if(connected) {
