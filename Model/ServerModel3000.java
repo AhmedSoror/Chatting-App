@@ -26,6 +26,7 @@ public class ServerModel3000{
 	static ArrayList<ThreadedServer> sockestList;
 	static PrintWriter pw;
 	static ClientModel toOtherServer;
+	static boolean server5000Connected;
 	public ServerModel3000(int port) throws IOException {
 		this.port=port;
 		ServerSocket=new ServerSocket(port);
@@ -62,6 +63,7 @@ public class ServerModel3000{
 	public static void connectToOtherServer() throws IOException {
 		 toOtherServer = new ClientModel(5000);
 		toOtherServer.sendMessage("$$Server$$");
+		server5000Connected=true;
 	}
 	public static void main(String[] args) throws Exception {
 		int port=3000;
@@ -102,7 +104,29 @@ public class ServerModel3000{
 			String msgIn=inFromClient.readLine();
 			return msgIn;
 		}
+		public String getMemberOtherServer() {
+			String s="";
+			if(server5000Connected) {
+				try {
+					toOtherServer.sendMessage("getMemberList");
+					s=toOtherServer.readMessage();
+					System.out.println("S3000 113 : "+s);
+					s=toOtherServer.readMessage();
+					System.out.println("S3000 115 : "+s);
+					
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+			return ","+s;
+		}
 		public String getMemberList() {	
+			String s=getMemberOtherServer();
+			return clientsName.toString()+s;
+		}
+		public String getServerList() {	
 			return clientsName.toString();
 		}
 		public String recieverName(String clientSentence) {
@@ -115,12 +139,13 @@ public class ServerModel3000{
 			}
 			return name.trim();
 		}
-	
+		
+		
 		public void run() {
 			try {
 				while(true) {
 					String msgIn=readFromClient();
-//					System.out.println(msgIn);	
+					System.out.println("s3000 143: "+msgIn);	
 					
 					if(msgIn.equalsIgnoreCase("bye")||msgIn.equalsIgnoreCase("quit")) {
 						break;
@@ -131,10 +156,6 @@ public class ServerModel3000{
 							sockestList.add(this);
 							firstConnection=false;
 							if (msgIn.equalsIgnoreCase("$$Server2$$")) {
-//								Socket s=new Socket("LocalHost",5000);
-//								PrintWriter pww=new PrintWriter(s.getOutputStream(),true);
-//								pw=pww;
-//								pw.println("$$Server$$");
 								ServerModel3000.connectToOtherServer();
 							}
 							sendToClient("true,"+clientName);
@@ -147,6 +168,7 @@ public class ServerModel3000{
 						if(msgIn.equalsIgnoreCase("GetMemberList")||(msgIn.toUpperCase().contains("MEMBER")&&msgIn.toUpperCase().contains("LIST"))) {
 							sendToClient(getMemberList()+"\n");
 						}
+						
 						else {
 							String toClient=recieverName(msgIn);
 							 if(toClient!=null) {
@@ -166,7 +188,6 @@ public class ServerModel3000{
 									else {
 										int timelive=Integer.parseInt(msgIn.charAt(msgIn.length()-1)+"")-1;
 										String newMsg=msgIn.substring(0,msgIn.length()-1)+""+timelive;
-										System.out.println("here 3000");
 										ServerModel3000.toOtherServer.sendMessage(newMsg);
 //										outToServer.println(newMsg);
 									}
@@ -192,7 +213,7 @@ public class ServerModel3000{
 				} 
 				catch (IOException e) {
 				}
-				System.out.println("Connection with client  " + clientName + " closed");
+				System.out.println("Connection with client  " + clientName + " closed 218");
 				clientsName.remove(clientName);
 				for(ThreadedServer se:sockestList) {
 					if(se.clientName.equals(clientName)) {
@@ -214,7 +235,7 @@ public class ServerModel3000{
 					socket.close();
 				} catch (Exception e) {
 				}
-				System.out.println("Connection with client  " + clientName + " closed 217");
+				System.out.println("Connection with client  " + clientName + " closed 240");
 			    clientsName.remove(clientName);
 				for(ThreadedServer se:sockestList) {
 					if(se.clientName.equals(clientName)) {
